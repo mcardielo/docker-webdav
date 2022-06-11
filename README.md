@@ -1,5 +1,5 @@
 ## Project
-[apachewebdav/apachewebdav](https://github.com/mgutt/docker-apachewebdav) is based on [bytemark/webdav](https://github.com/BytemarkHosting/docker-webdav) including different pull requests:
+This project is based on [apachewebdav/apachewebdav](https://github.com/mgutt/docker-apachewebdav) that is based on [bytemark/webdav](https://github.com/BytemarkHosting/docker-webdav) including different pull requests:
 - [Fix non-ASCII filenames](https://github.com/BytemarkHosting/docker-webdav/pull/20)
 - [Add PUID and PGID](https://github.com/BytemarkHosting/docker-webdav/pull/28)
 - [Add umask](https://github.com/noodlefighter/docker-webdav/pull/1)
@@ -7,6 +7,7 @@
 - [Disable DirectoryIndex to avoid DoS](https://github.com/BytemarkHosting/docker-webdav/pull/21)
 - [Fix SSL Error](https://github.com/BytemarkHosting/docker-webdav/pull/23)
 - [Add Apache Commons User-Agent](https://github.com/BytemarkHosting/docker-webdav/pull/25)
+- [True Multiuser Capability](https://github.com/BytemarkHosting/docker-webdav/pull/15)
 
 ## Usage
 
@@ -19,7 +20,7 @@ When using unencrypted HTTP, use `Digest` authentication (instead of `Basic`) to
 ```
 docker run -d --restart always -e 'AUTH_TYPE'='Digest' -e 'USERNAME'='alice' -e 'PASSWORD'='mypassword' \
     -v '/mnt/webdav':'/var/lib/dav/data':'rw' -v '/mnt/appdata':'/var/lib/dav':'rw' \
-    -p '80:80' 'apachewebdav/apachewebdav'
+    -p '80:80' 'mcardielo/webdav'
 ```
 
 #### Via Docker Compose:
@@ -28,7 +29,7 @@ docker run -d --restart always -e 'AUTH_TYPE'='Digest' -e 'USERNAME'='alice' -e 
 version: '3'
 services:
   webdav:
-    image: apachewebdav/apachewebdav
+    image: mcardielo/webdav
     restart: always
     ports:
       - "80:80"
@@ -48,14 +49,16 @@ We recommend you use a reverse proxy (eg, Nginx Proxy Manager) to handle SSL cer
 ```
 docker run -d --restart always -e 'AUTH_TYPE'='Digest' -e 'USERNAME'='alice' -e 'PASSWORD'='mypassword' \
     -v '/mnt/webdav':'/var/lib/dav/data':'rw' -v '/mnt/appdata':'/var/lib/dav':'rw' \
-    -e SSL_CERT=selfsigned -p '80:80' 'apachewebdav/apachewebdav'
+    -e SSL_CERT=selfsigned -p '80:80' 'mcardielo/webdav'
 ```
 
 If you bind mount a certificate chain to `/cert.pem` and a private key to `/privkey.pem`, the container will use that instead!
 
 ### Authenticate multiple clients
 
-Specifying `USERNAME` and `PASSWORD` only supports a single user. If you want to have lots of different logins for various users, bind mount your own file to `/user.passwd` and the container will use that instead.
+Specifying `USERNAME` and `PASSWORD` only supports a single user. If you want to have lots of different logins for various users everyone with their own directory, bind mount your own file to `/user.passwd` and the container will use that instead.
+
+When using  multi-user, a `transfer` folder is automatically created and it is accesible for all authenticated users.
 
 If using `Basic` authentication, run the following commands through the Containers Console:
 
